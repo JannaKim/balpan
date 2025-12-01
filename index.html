@@ -117,7 +117,7 @@
                         cell.className = "cell";
                         boards[b][idx] = cell;
 
-                        // Left click - 점유/취소 + 행 단위 활성화 제한
+                        // Left click - 점유/취소 + 행/열 단위 활성화 제한
                         cell.addEventListener("click", () => {
                             const ref = db.ref('boards');
                             ref.transaction(current => {
@@ -130,7 +130,7 @@
                                 if (cellInfo?.activeBoard === b) {
                                     delete current[idx];
                                 } else {
-                                    // 같은 보드에서 같은 row의 다른 활성화 셀 제거
+                                    // 같은 보드에서 같은 row 삭제
                                     for (let c2 = 0; c2 < COLS; c2++) {
                                         const key = `${row}-${c2}`;
                                         if (current[key]?.activeBoard === b) {
@@ -138,7 +138,15 @@
                                         }
                                     }
 
-                                    // 클릭한 위치를 현재 보드 점유
+                                    // 같은 보드에서 같은 column 삭제
+                                    for (let r2 = 0; r2 < ROWS; r2++) {
+                                        const key = `${r2}-${col}`;
+                                        if (current[key]?.activeBoard === b) {
+                                            delete current[key];
+                                        }
+                                    }
+
+                                    // 클릭한 칸 점유
                                     current[idx] = { activeBoard: b };
                                 }
 
