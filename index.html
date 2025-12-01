@@ -1,196 +1,200 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Platform Helper Advanced</title>
-  <style>
-    body {
-      background: #fff;
-      color: #111;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding: 20px;
-      font-family: Arial;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Platform Helper Advanced</title>
+    <style>
+        body {
+            background: #fff;
+            color: #111;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            font-family: Arial;
+        }
 
-    #resetBtn {
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #ff5252;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      width: fit-content;
-    }
+        #resetBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #ff5252;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: fit-content;
+        }
 
-    #resetBtn:hover {
-      background: #ff0000;
-    }
+            #resetBtn:hover {
+                background: #ff0000;
+            }
 
-    .board-container {
-      display: flex;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
+        .board-container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
 
-    .board {
-      display: grid;
-      grid-template-columns: repeat(4, 60px);
-      grid-template-rows: repeat(10, 40px);
-      gap: 8px;
-      padding: 10px;
-      background: #fff;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            grid-template-rows: repeat(10, 40px);
+            gap: 8px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
 
-    .cell {
-      width: 60px;
-      height: 40px;
-      background: #fff;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      transition: background 0.2s;
-    }
+        .cell {
+            width: 60px;
+            height: 40px;
+            background: #fff;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background 0.2s;
+        }
 
-    .cell.active {
-      background: #00c853;
-    }
+            .cell.active {
+                background: #00c853;
+            }
 
-    .cell.blocked {
-      background: #000;
-    }
+            .cell.blocked {
+                background: #000;
+            }
 
-    .cell.right-clicked {
-      background: rgba(255, 80, 80, 0.6);
-    }
-  </style>
+            .cell.right-clicked {
+                background: rgba(255, 80, 80, 0.6);
+            }
+    </style>
 </head>
 <body>
 
-  <button id="resetBtn">Reset All</button>
-  <div class="board-container">
-    <div class="board" id="board1"></div>
-    <div class="board" id="board2"></div>
-    <div class="board" id="board3"></div>
-    <div class="board" id="board4"></div>
-  </div>
+    <button id="resetBtn">Reset All</button>
+    <div class="board-container">
+        <div class="board" id="board1"></div>
+        <div class="board" id="board2"></div>
+        <div class="board" id="board3"></div>
+        <div class="board" id="board4"></div>
+    </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBhCIFH8-usox2uBVdUs8HhgVSkDWM9sp0",
-      authDomain: "jannas-balpan-helper.firebaseapp.com",
-      databaseURL: "https://jannas-balpan-helper-default-rtdb.firebaseio.com",
-      projectId: "jannas-balpan-helper",
-      storageBucket: "jannas-balpan-helper.firebasestorage.app",
-      messagingSenderId: "228303041076",
-      appId: "1:228303041076:web:0a0c49e8ea80f347b5d061",
-      measurementId: "G-N9C7SB629C"
-    };
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhCIFH8-usox2uBVdUs8HhgVSkDWM9sp0",
+            authDomain: "jannas-balpan-helper.firebaseapp.com",
+            databaseURL: "https://jannas-balpan-helper-default-rtdb.firebaseio.com",
+            projectId: "jannas-balpan-helper",
+            storageBucket: "jannas-balpan-helper.firebasestorage.app",
+            messagingSenderId: "228303041076",
+            appId: "1:228303041076:web:0a0c49e8ea80f347b5d061",
+            measurementId: "G-N9C7SB629C"
+        };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    const BOARD_COUNT = 4;
-    const ROWS = 10;
-    const COLS = 4;
-    const boards = [];
+        const BOARD_COUNT = 4;
+        const ROWS = 10;
+        const COLS = 4;
+        const boards = [];
 
-    function makeBoards() {
-      for (let b = 1; b <= BOARD_COUNT; b++) {
-        const board = document.getElementById(`board${b}`);
-        boards[b] = {};
+        function makeBoards() {
+            for (let b = 1; b <= BOARD_COUNT; b++) {
+                const board = document.getElementById(`board${b}`);
+                boards[b] = {};
 
-        for (let r = 0; r < ROWS; r++) {
-          for (let c = 0; c < COLS; c++) {
-            const idx = `${r}-${c}`;
-            const cell = document.createElement("div");
-            cell.className = "cell";
-            boards[b][idx] = cell;
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const idx = `${r}-${c}`;
+                        const cell = document.createElement("div");
+                        cell.className = "cell";
+                        boards[b][idx] = cell;
 
-            // Left click
-            cell.addEventListener("click", () => {
-              const ref = db.ref('boards');
-              ref.transaction(current => {
-                if(!current) current = {};
+                        // Left click - 점유/취소
+                        cell.addEventListener("click", () => {
+                            const ref = db.ref('boards');
+                            ref.transaction(current => {
+                                if (!current) current = {};
 
-                // 이미 클릭한 칸이면, 같은 위치 모든 board 취소
-                if(current[idx]?.activeBoard){
-                  delete current[idx];
-                } else {
-                  // 같은 가로(column)에서 현재 보드가 이미 점유한 셀 제거
-                  for(let rr=0; rr<ROWS; rr++){
-                    const key = `${rr}-${c}`;
-                    if(current[key]?.activeBoard === b){
-                      delete current[key];
+                                const cellInfo = current[idx];
+
+                                // 현재 보드가 이미 점유한 칸이면 취소
+                                if (cellInfo?.activeBoard === b) {
+                                    delete current[idx];
+                                } else {
+                                    // 같은 컬럼에서 현재 보드가 점유한 칸 제거
+                                    for (let rr = 0; rr < ROWS; rr++) {
+                                        const key = `${rr}-${c}`;
+                                        if (current[key]?.activeBoard === b) {
+                                            delete current[key];
+                                        }
+                                    }
+                                    // 클릭한 위치를 현재 보드 점유
+                                    current[idx] = { activeBoard: b };
+                                }
+
+                                return current;
+                            });
+                        });
+
+                        // Right click
+                        cell.addEventListener("contextmenu", (e) => {
+                            e.preventDefault();
+                            const rcRef = db.ref(`boards/${idx}/rightClickBoards/${b}`);
+                            rcRef.transaction(current => !current);
+                        });
+
+                        board.appendChild(cell);
                     }
-                  }
-                  current[idx] = {activeBoard: b};
                 }
-                return current;
-              });
-            });
-
-            // Right click
-            cell.addEventListener("contextmenu", (e) => {
-              e.preventDefault();
-              const rcRef = db.ref(`boards/${idx}/rightClickBoards/${b}`);
-              rcRef.transaction(current => !current);
-            });
-
-            board.appendChild(cell);
-          }
-        }
-      }
-    }
-
-    function attachRealtimeListeners(){
-      db.ref('boards').on('value', snapshot => {
-        const data = snapshot.val() || {};
-        for (let r=0; r<ROWS; r++){
-          for(let c=0;c<COLS;c++){
-            const idx = `${r}-${c}`;
-            const cellInfo = data[idx];
-            for(let b=1;b<=BOARD_COUNT;b++){
-              const cell = boards[b][idx];
-
-              if(cellInfo?.activeBoard === b){
-                cell.classList.add('active');
-                cell.classList.remove('blocked');
-              } else if(cellInfo?.activeBoard && cellInfo.activeBoard !== b){
-                cell.classList.remove('active');
-                cell.classList.add('blocked');
-              } else {
-                cell.classList.remove('active','blocked');
-              }
-
-              if(cellInfo?.rightClickBoards && cellInfo.rightClickBoards[b]){
-                cell.classList.add('right-clicked');
-              } else {
-                cell.classList.remove('right-clicked');
-              }
             }
-          }
         }
-      });
-    }
 
-    // Reset 버튼 - 전체 boards 제거
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      db.ref('boards').remove();
-    });
+        function attachRealtimeListeners() {
+            db.ref('boards').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const idx = `${r}-${c}`;
+                        const cellInfo = data[idx];
+                        for (let b = 1; b <= BOARD_COUNT; b++) {
+                            const cell = boards[b][idx];
 
-    makeBoards();
-    attachRealtimeListeners();
-  </script>
+                            if (cellInfo?.activeBoard === b) {
+                                cell.classList.add('active');
+                                cell.classList.remove('blocked');
+                            } else if (cellInfo?.activeBoard && cellInfo.activeBoard !== b) {
+                                cell.classList.remove('active');
+                                cell.classList.add('blocked');
+                            } else {
+                                cell.classList.remove('active', 'blocked');
+                            }
+
+                            if (cellInfo?.rightClickBoards && cellInfo.rightClickBoards[b]) {
+                                cell.classList.add('right-clicked');
+                            } else {
+                                cell.classList.remove('right-clicked');
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Reset 버튼 - 전체 boards 제거
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            db.ref('boards').remove();
+        });
+
+        makeBoards();
+        attachRealtimeListeners();
+    </script>
 </body>
 </html>
