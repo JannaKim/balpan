@@ -117,25 +117,27 @@
                         cell.className = "cell";
                         boards[b][idx] = cell;
 
-                        // Left click - 점유/취소
+                        // Left click - 점유/취소 + 행 단위 활성화 제한
                         cell.addEventListener("click", () => {
                             const ref = db.ref('boards');
                             ref.transaction(current => {
                                 if (!current) current = {};
 
                                 const cellInfo = current[idx];
+                                const [row, col] = idx.split("-").map(Number);
 
                                 // 현재 보드가 이미 점유한 칸이면 취소
                                 if (cellInfo?.activeBoard === b) {
                                     delete current[idx];
                                 } else {
-                                    // 같은 컬럼에서 현재 보드가 점유한 칸 제거
-                                    for (let rr = 0; rr < ROWS; rr++) {
-                                        const key = `${rr}-${c}`;
+                                    // 같은 보드에서 같은 row의 다른 활성화 셀 제거
+                                    for (let c2 = 0; c2 < COLS; c2++) {
+                                        const key = `${row}-${c2}`;
                                         if (current[key]?.activeBoard === b) {
                                             delete current[key];
                                         }
                                     }
+
                                     // 클릭한 위치를 현재 보드 점유
                                     current[idx] = { activeBoard: b };
                                 }
