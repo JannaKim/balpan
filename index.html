@@ -117,24 +117,23 @@
             cell.className = "cell";
             boards[b][idx] = cell;
 
+            // Left click
             cell.addEventListener("click", () => {
               const ref = db.ref('boards');
               ref.transaction(current => {
                 if(!current) current = {};
-                // 현재 컬럼에서 이미 이 보드가 점유 중인 셀 확인
-                let activeInColumn = null;
-                for(let rr=0; rr<ROWS; rr++){
-                  const key = `${rr}-${c}`;
-                  if(current[key]?.activeBoard === b){
-                    activeInColumn = key;
-                    break;
-                  }
-                }
 
-                // 이미 클릭한 칸이면 취소
-                if(current[idx]?.activeBoard === b){
-                  current[idx] = null;
-                } else if(!activeInColumn){
+                // 이미 클릭한 칸이면, 같은 위치 모든 board 취소
+                if(current[idx]?.activeBoard){
+                  delete current[idx];
+                } else {
+                  // 같은 가로(column)에서 현재 보드가 이미 점유한 셀 제거
+                  for(let rr=0; rr<ROWS; rr++){
+                    const key = `${rr}-${c}`;
+                    if(current[key]?.activeBoard === b){
+                      delete current[key];
+                    }
+                  }
                   current[idx] = {activeBoard: b};
                 }
                 return current;
@@ -157,37 +156,37 @@
     function attachRealtimeListeners(){
       db.ref('boards').on('value', snapshot => {
         const data = snapshot.val() || {};
-        for (let idx in data){
-          const cellInfo = data[idx];
-          for(let b=1;b<=BOARD_COUNT;b++){
-            const cell = boards[b][idx];
+        for (let r=0; r<ROWS; r++){
+          for(let c=0;c<COLS;c++){
+            const idx = `${r}-${c}`;
+            const cellInfo = data[idx];
+            for(let b=1;b<=BOARD_COUNT;b++){
+              const cell = boards[b][idx];
 
-            if(cellInfo?.activeBoard === b){
-              cell.classList.add('active');
-              cell.classList.remove('blocked');
-            } else if(cellInfo?.activeBoard && cellInfo.activeBoard !== b){
-              cell.classList.remove('active');
-              cell.classList.add('blocked');
-            } else {
-              cell.classList.remove('active','blocked');
-            }
+              if(cellInfo?.activeBoard === b){
+                cell.classList.add('active');
+                cell.classList.remove('blocked');
+              } else if(cellInfo?.activeBoard && cellInfo.activeBoard !== b){
+                cell.classList.remove('active');
+                cell.classList.add('blocked');
+              } else {
+                cell.classList.remove('active','blocked');
+              }
 
-            if(cellInfo?.rightClickBoards && cellInfo.rightClickBoards[b]){
-              cell.classList.add('right-clicked');
-            } else {
-              cell.classList.remove('right-clicked');
+              if(cellInfo?.rightClickBoards && cellInfo.rightClickBoards[b]){
+                cell.classList.add('right-clicked');
+              } else {
+                cell.classList.remove('right-clicked');
+              }
             }
           }
         }
       });
     }
 
+    // Reset 버튼 - 전체 boards 제거
     document.getElementById('resetBtn').addEventListener('click', () => {
-      for(let r=0;r<ROWS;r++){
-        for(let c=0;c<COLS;c++){
-          db.ref(`boards/${r}-${c}`).remove();
-        }
-      }
+      db.ref('boards').remove();
     });
 
     makeBoards();
