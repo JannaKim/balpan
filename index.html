@@ -5,22 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Platform Helper Advanced</title>
     <style>
-        .board-wrapper {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        
-        .row-numbers {
-            display: grid;
-            grid-template-rows: repeat(10, 40px);
-            width: 25px;
-            gap: 8px;
-            font-size: 14px;
-            text-align: right;
-            align-items: center;
-            user-select: none;
-        }
+.board-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.row-numbers {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 472px; /* 40*10 + 8*9 */
+    width: 25px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.row-number {
+    height: 40px;
+    line-height: 40px;
+}
         body {
             background: #fff;
             color: #111;
@@ -142,10 +146,12 @@
             for (let b = 1; b <= BOARD_COUNT; b++) {
                 const numbers = document.getElementById(`numbers${b}`);
         
-                // 아래부터 1,2,3...
-                for (let r = ROWS - 1; r >= 0; r--) {
+                numbers.innerHTML = "";
+        
+                for (let i = ROWS; i >= 1; i--) {
                     const div = document.createElement("div");
-                    div.textContent = ROWS - r;
+                    div.className = "row-number";
+                    div.textContent = i;
                     numbers.appendChild(div);
                 }
             }
